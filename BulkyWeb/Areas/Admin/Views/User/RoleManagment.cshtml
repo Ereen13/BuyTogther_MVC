@@ -21,10 +21,7 @@
                     <select asp-for="ApplicationUser.Role" asp-items="@Model.RoleList" class="form-select"></select>
                 </div>
                 @{
-                    var companyVisible = "display:none;";
-                }
-                @if (Model.ApplicationUser.Role == SD.Role_Company) {
-                    companyVisible = "display:block;";
+                    var companyVisible = Model.ApplicationUser.Role == SD.Role_Company ? "display:block;" : "display:none;";
                 }
                 <div class="form-floating py-2 col-12">
                     <select asp-for="ApplicationUser.CompanyId" style="@companyVisible" asp-items="@Model.CompanyList" class="form-select">

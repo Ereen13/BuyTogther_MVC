@@ -2,22 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.Encodings.Web;
-using System.Threading;
-using System.Threading.Tasks;
 using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
 using BulkyBook.Utility;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -26,51 +18,58 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace BulkyBookWeb.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly IUserStore<IdentityUser> _userStore;
-        private readonly IUserEmailStore<IdentityUser> _emailStore;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUserStore<ApplicationUser> _userStore;
+        private readonly IUserEmailStore<ApplicationUser> _emailStore;
+
+
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         public RegisterModel(
-            UserManager<IdentityUser> userManager,
-            RoleManager<IdentityRole> roleManager,
-            IUserStore<IdentityUser> userStore,
-            SignInManager<IdentityUser> signInManager,
-            ILogger<RegisterModel> logger,
-            IEmailSender emailSender,
-            IUnitOfWork unitOfWork,
-            IWebHostEnvironment webHostEnvironment)
+    UserManager<ApplicationUser> userManager,
+    RoleManager<IdentityRole> roleManager,
+    IUserStore<ApplicationUser> userStore,
+    SignInManager<ApplicationUser> signInManager,
+    ILogger<RegisterModel> logger,
+    IEmailSender emailSender,
+    IUnitOfWork unitOfWork,
+    IWebHostEnvironment webHostEnvironment)
         {
-            _unitOfWork = unitOfWork;
-            _roleManager = roleManager;
             _userManager = userManager;
+            _roleManager = roleManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _unitOfWork = unitOfWork;
             _webHostEnvironment = webHostEnvironment;
         }
 
+
         [BindProperty]
         public InputModel Input { get; set; }
+
         public string ReturnUrl { get; set; }
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
         public class InputModel
         {
             [Display(Name = "Profile Picture")]
-            public IFormFile ProfilePicture { get; set; }
+            public IFormFile? ProfilePicture { get; set; }
 
             [Required]
             [EmailAddress]
@@ -78,30 +77,28 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
             public string Email { get; set; }
 
             [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [StringLength(100, MinimumLength = 6)]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
             public string Password { get; set; }
 
             [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            [Display(Name = "Confirm Password")]
+            [Compare("Password", ErrorMessage = "Passwords do not match.")]
             public string ConfirmPassword { get; set; }
 
-            public string Role { get; set; }
-
+            public string? Role { get; set; }
             [ValidateNever]
             public IEnumerable<SelectListItem> RoleList { get; set; }
 
             [Required]
             public string Name { get; set; }
-            public string StreetAddress { get; set; }
-            public string City { get; set; }
-            public string State { get; set; }
-            public string PostalCode { get; set; }
-            public string PhoneNumber { get; set; }
+            public string? StreetAddress { get; set; }
+            public string? City { get; set; }
+            public string? State { get; set; }
+            public string? PostalCode { get; set; }
+            public string? PhoneNumber { get; set; }
             public int? CompanyId { get; set; }
-
             [ValidateNever]
             public IEnumerable<SelectListItem> CompanyList { get; set; }
         }
@@ -110,10 +107,10 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
         {
             Input = new()
             {
-                RoleList = _roleManager.Roles.Select(x => x.Name).Select(i => new SelectListItem
+                RoleList = _roleManager.Roles.Select(x => new SelectListItem
                 {
-                    Text = i,
-                    Value = i
+                    Text = x.Name,
+                    Value = x.Name
                 }),
                 CompanyList = _unitOfWork.Company.GetAll().Select(i => new SelectListItem
                 {
@@ -121,7 +118,6 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
                     Value = i.Id.ToString()
                 })
             };
-
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
@@ -137,9 +133,9 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
+                user.Name = Input.Name;
                 user.StreetAddress = Input.StreetAddress;
                 user.City = Input.City;
-                user.Name = Input.Name;
                 user.State = Input.State;
                 user.PostalCode = Input.PostalCode;
                 user.PhoneNumber = Input.PhoneNumber;
@@ -149,27 +145,22 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
                     user.CompanyId = Input.CompanyId;
                 }
 
-                // رفع الصورة
+                // ✨ رفع الصورة ✨
                 if (Input.ProfilePicture != null)
                 {
-                    string wwwRootPath = _webHostEnvironment.WebRootPath;
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(Input.ProfilePicture.FileName);
-                    string uploadsFolder = Path.Combine(wwwRootPath, @"images\profilepictures");
-                    Directory.CreateDirectory(uploadsFolder); // تأكد أن الفولدر موجود
-                    string filePath = Path.Combine(uploadsFolder, fileName);
+                    string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images/profiles");
+                    Directory.CreateDirectory(uploadsFolder);
+
+                    string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(Input.ProfilePicture.FileName);
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
                         await Input.ProfilePicture.CopyToAsync(fileStream);
                     }
 
-                    user.ProfilePictureUrl = @"/images/profilepictures/" + fileName;
+                    user.ProfilePictureUrl = @"\images\profiles\" + uniqueFileName;
                 }
-                else
-                {
-                    user.ProfilePictureUrl = "/images/profilepictures/default.png"; // صورة افتراضية لو المستخدم مدخلش صورة
-                }
-
 
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
@@ -189,18 +180,14 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
-                        protocol: Request.Scheme);
+                    var callbackUrl = Url.Page("/Account/ConfirmEmail", null, new { area = "Identity", userId, code, returnUrl }, Request.Scheme);
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
+                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl });
                     }
                     else
                     {
@@ -215,6 +202,7 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
                         return LocalRedirect(returnUrl);
                     }
                 }
+
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
@@ -232,18 +220,23 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
             }
             catch
             {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser)}'. " +
-                    $"Ensure that '{nameof(IdentityUser)}' is not an abstract class and has a parameterless constructor.");
+                throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
+                    $"Make sure it's not abstract and has a parameterless constructor.");
             }
         }
 
-        private IUserEmailStore<IdentityUser> GetEmailStore()
+        
+        
+        private IUserEmailStore<ApplicationUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
-            return (IUserEmailStore<IdentityUser>)_userStore;
+            return (IUserEmailStore<ApplicationUser>)_userStore;
         }
+
+
     }
 }
+

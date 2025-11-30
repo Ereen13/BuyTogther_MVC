@@ -8,6 +8,9 @@ namespace BulkyBook.DataAccess.Repository.IRepository
 {
     public interface IUnitOfWork
     {
+        IGroupDealRepository GroupDeal { get; }
+        IGroupDealUserRepository GroupDealUser { get; }
+
         ICategoryRepository Category { get; }
         IProductRepository Product { get; }
         ICompanyRepository Company { get; }

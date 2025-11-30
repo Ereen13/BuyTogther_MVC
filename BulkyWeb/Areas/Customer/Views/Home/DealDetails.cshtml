@@ -1,0 +1,39 @@
+﻿@model BulkyBook.Models.GroupDeal
+
+<div class="container mt-4">
+    <h2>@Model.Product.Title</h2>
+    <img src="@(Model.Product.ProductImages.FirstOrDefault()?.ImageUrl ?? "https://placehold.co/500x600/png")" class="img-fluid mb-3" />
+
+    <p>Discount Price: <b>@Model.DiscountPrice.ToString("c")</b></p>
+    <p>Joined: @Model.JoinedUsersCount / @Model.RequiredUsers</p>
+    <p>Expires in: <span id="timer" class="text-danger fw-bold"></span></p>
+
+    <form method="post" asp-action="JoinDeal">
+        <input type="hidden" name="dealId" value="@Model.DealId" />
+        <button class="btn btn-success" @(Model.IsCompleted ? "disabled" : "")>Join Deal</button>
+    </form>
+</div>
+
+<script>
+    const expireDate = new Date("@Model.ExpirationDate").getTime();
+    setInterval(() => {
+        let now = new Date().getTime();
+        let distance = expireDate - now;
+
+        if(distance < 0){
+            document.getElementById("timer").innerHTML = "Expired";
+            return;
+        }
+
+        let hours = Math.floor((distance % (1000*60*60*24)) / (1000*60*60));
+        let minutes = Math.floor((distance % (1000*60*60)) / (1000*60));
+        let seconds = Math.floor((distance % (1000*60)) / 1000);
+
+        document.getElementById("timer").innerHTML = `${hours}h ${minutes}m ${seconds}s`;
+    }, 1000);
+</script>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}

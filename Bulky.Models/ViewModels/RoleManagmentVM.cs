@@ -10,5 +10,8 @@ namespace BulkyBook.Models.ViewModels {
         public ApplicationUser ApplicationUser { get; set; }
         public IEnumerable<SelectListItem> RoleList { get; set; }
         public IEnumerable<SelectListItem> CompanyList { get; set; }
+
+        public string Role { get; set; }
+
     }
 }

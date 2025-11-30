@@ -1,0 +1,34 @@
+﻿@model IEnumerable<BulkyBook.Models.GroupDeal>
+<div class="container mt-4">
+    <h2>Group Deals</h2>
+    <a href="/Admin/GroupDeals/Create" class="btn btn-primary mb-3">Add New Deal</a>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Required Users</th>
+                <th>Joined Users</th>
+                <th>Discount Price</th>
+                <th>Expires</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var deal in Model)
+            {
+                <tr>
+                    <td>@deal.Product.Title</td>
+                    <td>@deal.RequiredUsers</td>
+                    <td>@deal.JoinedUsersCount</td>
+                    <td>@deal.DiscountPrice</td>
+                    <td>@deal.ExpirationDate.ToShortDateString()</td>
+                    <td>
+                        <a class="btn btn-info btn-sm" href="/Admin/GroupDeals/Details/@deal.DealId">Details</a>
+                        <a class="btn btn-warning btn-sm" href="/Admin/GroupDeals/Edit/@deal.DealId">Edit</a>
+                        <a class="btn btn-danger btn-sm" href="/Admin/GroupDeals/Delete/@deal.DealId">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

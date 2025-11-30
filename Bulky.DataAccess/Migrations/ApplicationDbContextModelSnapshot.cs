@@ -22,6 +22,95 @@ namespace BulkyBook.DataAccess.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("BulkyBook.Models.ApplicationUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProfilePictureUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("State")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StreetAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
             modelBuilder.Entity("BulkyBook.Models.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -125,6 +214,39 @@ namespace BulkyBook.DataAccess.Migrations
                             State = "NY",
                             StreetAddress = "999 Main St"
                         });
+                });
+
+            modelBuilder.Entity("BulkyBook.Models.GroupDeal", b =>
+                {
+                    b.Property<int>("DealId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DealId"));
+
+                    b.Property<decimal>("DiscountPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("ExpirationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("JoinedUsersCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RequiredUsers")
+                        .HasColumnType("int");
+
+                    b.HasKey("DealId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("GroupDeals");
                 });
 
             modelBuilder.Entity("BulkyBook.Models.OrderDetail", b =>
@@ -232,6 +354,48 @@ namespace BulkyBook.DataAccess.Migrations
                     b.ToTable("OrderHeaders");
                 });
 
+            modelBuilder.Entity("BulkyBook.Models.Payment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("OrderHeaderId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TransactionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("OrderHeaderId");
+
+                    b.ToTable("Payments");
+                });
+
             modelBuilder.Entity("BulkyBook.Models.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -283,7 +447,7 @@ namespace BulkyBook.DataAccess.Migrations
                             Id = 1,
                             Author = "Billy Spark",
                             CategoryId = 1,
-                            Description = "Praesent vitae sodales libero. Praesent molestie orci augue, vitae euismod velit sollicitudin ac. Praesent vestibulum facilisis nibh ut ultricies.\r\n\r\nNunc malesuada viverra ipsum sit amet tincidunt. ",
+                            Description = "Praesent vitae sodales libero...",
                             ISBN = "SWD9999001",
                             ListPrice = 99.0,
                             Price = 90.0,
@@ -296,65 +460,13 @@ namespace BulkyBook.DataAccess.Migrations
                             Id = 2,
                             Author = "Nancy Hoover",
                             CategoryId = 1,
-                            Description = "Praesent vitae sodales libero. Praesent molestie orci augue, vitae euismod velit sollicitudin ac. Praesent vestibulum facilisis nibh ut ultricies.\r\n\r\nNunc malesuada viverra ipsum sit amet tincidunt. ",
+                            Description = "Praesent vitae sodales libero...",
                             ISBN = "CAW777777701",
                             ListPrice = 40.0,
                             Price = 30.0,
                             Price100 = 20.0,
                             Price50 = 25.0,
                             Title = "Dark Skies"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Author = "Julian Button",
-                            CategoryId = 1,
-                            Description = "Praesent vitae sodales libero. Praesent molestie orci augue, vitae euismod velit sollicitudin ac. Praesent vestibulum facilisis nibh ut ultricies.\r\n\r\nNunc malesuada viverra ipsum sit amet tincidunt. ",
-                            ISBN = "RITO5555501",
-                            ListPrice = 55.0,
-                            Price = 50.0,
-                            Price100 = 35.0,
-                            Price50 = 40.0,
-                            Title = "Vanish in the Sunset"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Author = "Abby Muscles",
-                            CategoryId = 2,
-                            Description = "Praesent vitae sodales libero. Praesent molestie orci augue, vitae euismod velit sollicitudin ac. Praesent vestibulum facilisis nibh ut ultricies.\r\n\r\nNunc malesuada viverra ipsum sit amet tincidunt. ",
-                            ISBN = "WS3333333301",
-                            ListPrice = 70.0,
-                            Price = 65.0,
-                            Price100 = 55.0,
-                            Price50 = 60.0,
-                            Title = "Cotton Candy"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Author = "Ron Parker",
-                            CategoryId = 2,
-                            Description = "Praesent vitae sodales libero. Praesent molestie orci augue, vitae euismod velit sollicitudin ac. Praesent vestibulum facilisis nibh ut ultricies.\r\n\r\nNunc malesuada viverra ipsum sit amet tincidunt. ",
-                            ISBN = "SOTJ1111111101",
-                            ListPrice = 30.0,
-                            Price = 27.0,
-                            Price100 = 20.0,
-                            Price50 = 25.0,
-                            Title = "Rock in the Ocean"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Author = "Laura Phantom",
-                            CategoryId = 3,
-                            Description = "Praesent vitae sodales libero. Praesent molestie orci augue, vitae euismod velit sollicitudin ac. Praesent vestibulum facilisis nibh ut ultricies.\r\n\r\nNunc malesuada viverra ipsum sit amet tincidunt. ",
-                            ISBN = "FOT000000001",
-                            ListPrice = 25.0,
-                            Price = 23.0,
-                            Price100 = 20.0,
-                            Price50 = 22.0,
-                            Title = "Leaves and Wonders"
                         });
                 });
 
@@ -407,6 +519,36 @@ namespace BulkyBook.DataAccess.Migrations
                     b.ToTable("ShoppingCarts");
                 });
 
+            modelBuilder.Entity("GroupDealUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DealId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GroupDealDealId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("JoinedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupDealDealId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("GroupDealUsers");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -457,80 +599,6 @@ namespace BulkyBook.DataAccess.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetRoleClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("nvarchar(21)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUser");
-
-                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -616,33 +684,22 @@ namespace BulkyBook.DataAccess.Migrations
 
             modelBuilder.Entity("BulkyBook.Models.ApplicationUser", b =>
                 {
-                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+                    b.HasOne("BulkyBook.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId");
 
-                    b.Property<string>("City")
-                        .HasColumnType("nvarchar(max)");
+                    b.Navigation("Company");
+                });
 
-                    b.Property<int?>("CompanyId")
-                        .HasColumnType("int");
+            modelBuilder.Entity("BulkyBook.Models.GroupDeal", b =>
+                {
+                    b.HasOne("BulkyBook.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PostalCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProfilePictureUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("State")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StreetAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasIndex("CompanyId");
-
-                    b.HasDiscriminator().HasValue("ApplicationUser");
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("BulkyBook.Models.OrderDetail", b =>
@@ -673,6 +730,23 @@ namespace BulkyBook.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("ApplicationUser");
+                });
+
+            modelBuilder.Entity("BulkyBook.Models.Payment", b =>
+                {
+                    b.HasOne("BulkyBook.Models.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BulkyBook.Models.OrderHeader", "OrderHeader")
+                        .WithMany()
+                        .HasForeignKey("OrderHeaderId");
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("OrderHeader");
                 });
 
             modelBuilder.Entity("BulkyBook.Models.Product", b =>
@@ -716,6 +790,25 @@ namespace BulkyBook.DataAccess.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("GroupDealUser", b =>
+                {
+                    b.HasOne("BulkyBook.Models.GroupDeal", "GroupDeal")
+                        .WithMany("GroupDealUsers")
+                        .HasForeignKey("GroupDealDealId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BulkyBook.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GroupDeal");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -727,7 +820,7 @@ namespace BulkyBook.DataAccess.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("BulkyBook.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -736,7 +829,7 @@ namespace BulkyBook.DataAccess.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("BulkyBook.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -751,7 +844,7 @@ namespace BulkyBook.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("BulkyBook.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -760,20 +853,16 @@ namespace BulkyBook.DataAccess.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("BulkyBook.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BulkyBook.Models.ApplicationUser", b =>
+            modelBuilder.Entity("BulkyBook.Models.GroupDeal", b =>
                 {
-                    b.HasOne("BulkyBook.Models.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("CompanyId");
-
-                    b.Navigation("Company");
+                    b.Navigation("GroupDealUsers");
                 });
 
             modelBuilder.Entity("BulkyBook.Models.Product", b =>
