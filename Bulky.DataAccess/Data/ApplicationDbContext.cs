@@ -25,8 +25,7 @@ namespace BulkyBook.DataAcess.Data // تأكدي إن اسم الفولدر Data
         public DbSet<OrderDetail> OrderDetails { get; set; }
 
         // ✅ Group Buy
-        public DbSet<GroupDeal> GroupDeals { get; set; }
-        public DbSet<GroupDealUser> GroupDealUsers { get; set; }
+       
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

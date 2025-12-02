@@ -75,53 +75,12 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
         // -----------------------------
         // Group Deals / Group Buy
         // -----------------------------
-        public IActionResult GroupDeals()
-        {
-            // جلب كل العروض الفعّالة
-            var deals = _unitOfWork.GroupDeal.GetAllActiveDeals();
-            return View(deals);
-        }
+       
 
-        public IActionResult DealDetails(int id)
-        {
-            var deal = _unitOfWork.GroupDeal.Get(u => u.DealId == id, includeProperties: "Product,GroupDealUsers");
-            if (deal == null) return NotFound();
-
-            return View(deal);
-        }
-
+       
         [HttpPost]
         [Authorize]
-        public IActionResult JoinDeal(int dealId)
-        {
-            var deal = _unitOfWork.GroupDeal.Get(u => u.DealId == dealId, includeProperties: "GroupDealUsers");
-            if (deal == null) return NotFound();
-
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            // check if already joined
-            bool alreadyJoined = deal.GroupDealUsers.Any(u => u.UserId == userId);
-            if (!alreadyJoined)
-            {
-                deal.JoinedUsersCount++;
-                _unitOfWork.GroupDealUser.Add(new GroupDealUser
-                {
-                    DealId = dealId,
-                    UserId = userId,
-                    JoinedDate = DateTime.Now
-                });
-
-                if (deal.JoinedUsersCount >= deal.RequiredUsers)
-                    deal.IsCompleted = true;
-
-                _unitOfWork.GroupDeal.Update(deal);
-                _unitOfWork.Save();
-            }
-
-            return RedirectToAction("DealDetails", new { id = dealId });
-        }
-
+        
         // -----------------------------
         // Privacy & Error
         // -----------------------------
