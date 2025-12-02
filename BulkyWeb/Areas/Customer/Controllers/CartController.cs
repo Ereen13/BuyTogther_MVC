@@ -15,10 +15,10 @@ namespace BulkyBookWeb.Areas.Customer.Controllers {
     public class CartController : Controller {
 
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailService _emailSender;
         [BindProperty]
         public ShoppingCartVM ShoppingCartVM { get; set; }
-        public CartController(IUnitOfWork unitOfWork, IEmailSender emailSender) {
+        public CartController(IUnitOfWork unitOfWork, IEmailService emailSender) {
             _unitOfWork = unitOfWork;
             _emailSender = emailSender;
         }
@@ -156,9 +156,12 @@ namespace BulkyBookWeb.Areas.Customer.Controllers {
 		}
 
 
-        public IActionResult OrderConfirmation(int id) {
+        public async Task<IActionResult> OrderConfirmation(int id) {
 
 			OrderHeader orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == id, includeProperties: "ApplicationUser");
+            var orderDetails = _unitOfWork.OrderDetail
+        .GetAll(od => od.OrderHeaderId == id, includeProperties: "Product")
+        .ToList();
             if(orderHeader.PaymentStatus!= SD.PaymentStatusDelayedPayment) {
                 //this is an order by customer
 
@@ -174,8 +177,260 @@ namespace BulkyBookWeb.Areas.Customer.Controllers {
 
 			}
 
-            _emailSender.SendEmailAsync(orderHeader.ApplicationUser.Email, "New Order - Bulky Book",
-                $"<p>New Order Created - {orderHeader.Id}</p>");
+           
+            try
+            {
+                var emailBody = $@"
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <title>Order Confirmation</title>
+        <style>
+            body {{
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                margin: 0;
+                padding: 20px;
+            }}
+            .email-container {{
+                max-width: 600px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 20px;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            }}
+            .header {{
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                color: white;
+                padding: 40px 30px;
+                text-align: center;
+            }}
+            .header h1 {{
+                margin: 0;
+                font-size: 28px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+            }}
+            .header .order-number {{
+                background: rgba(255,255,255,0.2);
+                padding: 5px 15px;
+                border-radius: 20px;
+                font-size: 20px;
+                margin-top: 10px;
+                display: inline-block;
+            }}
+            .content {{
+                padding: 30px;
+            }}
+            .thank-you {{
+                text-align: center;
+                font-size: 18px;
+                color: #666;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 2px dashed #eee;
+            }}
+            .order-summary {{
+                background: #f8f9fa;
+                border-radius: 15px;
+                padding: 25px;
+                margin-bottom: 25px;
+            }}
+            .order-summary h2 {{
+                color: #333;
+                margin-top: 0;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }}
+            .item-list {{
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }}
+            .item-list li {{
+                background: white;
+                margin: 10px 0;
+                padding: 15px;
+                border-radius: 10px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-left: 4px solid #4CAF50;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+                transition: transform 0.2s;
+            }}
+            .item-list li:hover {{
+                transform: translateX(5px);
+                border-left-color: #f5576c;
+            }}
+            .item-name {{
+                font-weight: bold;
+                color: #333;
+            }}
+            .item-details {{
+                color: #666;
+                font-size: 14px;
+            }}
+            .item-price {{
+                color: #4CAF50;
+                font-weight: bold;
+                font-size: 16px;
+            }}
+            .total-section {{
+                text-align: center;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 25px;
+                border-radius: 15px;
+                margin: 30px 0;
+            }}
+            .total-label {{
+                font-size: 16px;
+                opacity: 0.9;
+                margin-bottom: 5px;
+            }}
+            .total-amount {{
+                font-size: 36px;
+                font-weight: bold;
+                margin: 10px 0;
+            }}
+            .info-box {{
+                background: #e3f2fd;
+                border-radius: 10px;
+                padding: 20px;
+                margin: 20px 0;
+                border-left: 4px solid #2196F3;
+            }}
+            .shipping-info {{
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                color: #666;
+                margin-top: 10px;
+            }}
+            .icon {{
+                font-size: 20px;
+            }}
+            .footer {{
+                text-align: center;
+                padding: 20px;
+                color: #888;
+                font-size: 14px;
+                border-top: 1px solid #eee;
+                margin-top: 30px;
+            }}
+            .cta-button {{
+                display: inline-block;
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                color: white;
+                padding: 12px 30px;
+                text-decoration: none;
+                border-radius: 25px;
+                font-weight: bold;
+                margin: 20px 0;
+                transition: transform 0.2s;
+            }}
+            .cta-button:hover {{
+                transform: translateY(-2px);
+            }}
+        </style>
+    </head>
+    <body>
+        <div class='email-container'>
+            <div class='header'>
+                <h1>🎉 Order Confirmed!</h1>
+                <div class='order-number'>ORDER #{orderHeader.Id}</div>
+            </div>
+            
+            <div class='content'>
+                <div class='thank-you'>
+                    Thank you for your purchase! We're preparing your order with care.
+                </div>
+                
+                <div class='order-summary'>
+                    <h2>📦 Your Order Items</h2>
+                    <ul class='item-list'>";
+    
+    foreach (var item in orderDetails)
+    {
+       var productName = item.Product?.Title ?? "Product";
+        var subtotal = item.Price * item.Count;
+        
+        emailBody += $@"
+                        <li>
+                            <div>
+                                <div class='item-name'>{productName}</div>
+                                <div class='item-details'>Quantity: {item.Count} | Price: ${item.Price:N2} each</div>
+                            </div>
+                            <div class='item-price'>${subtotal:N2}</div>
+                        </li>";
+    }
+    
+     emailBody += $@"
+                    </ul>
+                </div>
+                
+                <div class='total-section'>
+                    <div class='total-label'>Order Total</div>
+                    <div class='total-amount'>${orderHeader.OrderTotal:N2}</div>
+                    <div>Including all taxes and shipping</div>
+                </div>
+                
+                <div class='info-box'>
+                    <h3 style='margin-top: 0; color: #2196F3;'>📋 Order Details</h3>
+                    <div class='shipping-info'>
+                        <span class='icon'>📅</span>
+                        <span><strong>Order Date:</strong> {orderHeader.OrderDate.ToString("MMMM dd, yyyy • h:mm tt")}</span>
+                    </div>
+                    <div class='shipping-info'>
+                        <span class='icon'>📍</span>
+                        <span><strong>Shipping to:</strong> {orderHeader.Name}, {orderHeader.City}, {orderHeader.State}</span>
+                    </div>
+                    <div class='shipping-info'>
+                        <span class='icon'>📞</span>
+                        <span><strong>Contact:</strong> {orderHeader.PhoneNumber}</span>
+                    </div>
+                </div>
+                
+                <div style='text-align: center;'>
+                    <a href='#' class='cta-button'>Track Your Order</a>
+                    <p style='color: #666; margin-top: 15px;'>
+                        We'll send you shipping updates as your order progresses.
+                    </p>
+                </div>
+            </div>
+            
+            <div class='footer'>
+                <p>If you have any questions, reply to this email or contact our support team.</p>
+                <p>Thank you for choosing us! ❤️</p>
+                <p><strong>GroupBuy Team</strong></p>
+                <p style='font-size: 12px; margin-top: 20px;'>
+                    Order ID: {orderHeader.Id} • {DateTime.Now.ToString("MMM dd, yyyy")}
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>";
+    
+    await _emailSender.SendEmailAsync(
+        orderHeader.ApplicationUser.Email, 
+        $"🎉 Your Order #{orderHeader.Id} is Confirmed!",
+        emailBody);
+                
+                Console.WriteLine($"Email sent to {orderHeader.ApplicationUser.Email}");
+            }
+            catch (Exception ex)
+            {
+                // Log the error but don't crash the page
+                Console.WriteLine($"Failed to send email: {ex.Message}");
+                // You could also use ILogger here
+            }
 
             List<ShoppingCart> shoppingCarts = _unitOfWork.ShoppingCart
                 .GetAll(u => u.ApplicationUserId == orderHeader.ApplicationUserId).ToList();
@@ -183,8 +438,8 @@ namespace BulkyBookWeb.Areas.Customer.Controllers {
             _unitOfWork.ShoppingCart.RemoveRange(shoppingCarts);
             _unitOfWork.Save();
 
-			return View(id);
-		}
+            return View(id);
+        }
 
 
 		public IActionResult Plus(int cartId) {
