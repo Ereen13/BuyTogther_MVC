@@ -9,7 +9,8 @@
     </div>
     </div>
     <div class="card-body p-4">
-        <form method="post" class="row" enctype="multipart/form-data">
+     <form method="post" asp-area="Admin" asp-controller="GroupDeals" asp-action="Upsert" class="row">
+
             <input asp-for="Product.Id" hidden />
            
             <div class="row">
@@ -95,15 +96,12 @@
                     @if (Model.Product.ProductImages != null) {
                         foreach(var image in Model.Product.ProductImages) {
                             <div class="border p-1 m-2 text-center">
-                               <img src="@image.ImageUrl.Replace('\\', '/')" width="100%"
-     style="border-radius:5px; border:1px solid #bbb9b9" />
-
+                                <img src="@image.ImageUrl" width="100%"
+                                     style="border-radius:5px; border:1px solid #bbb9b9" />
                                      <a asp-action="DeleteImage" class="btn btn-danger" asp-route-imageId="@image.Id">
                                     <i class="bi bi-trash-fill"></i> Delete
                                      </a>
                             </div>
-                            
-
                         }
                     }
                 </div>
@@ -116,8 +114,10 @@
 
 
 
-@section Scripts {
-    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+@section Scripts{
+   
+    <script src="https://cdn.tiny.cloud/1/45o8e619c60ida67x6pdgu4s9qrbhbz92ioj6mdp4mnat2hq/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
     <script>
         tinymce.init({
             selector: 'textarea',
@@ -125,7 +125,12 @@
             toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | align lineheight | numlist bullist indent outdent',
         });
     </script>
+    
     @{
-        <partial name="_ValidationScriptsPartial" />
+        <partial name="_ValidationScriptsPartial"/>
+    }
+}
+    @{
+    <partial name="_ValidationScriptsPartial"/>
     }
 }

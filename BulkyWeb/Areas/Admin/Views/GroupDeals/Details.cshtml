@@ -1,0 +1,29 @@
+﻿@model BulkyBook.Models.GroupDeal
+@{
+    ViewData["Title"] = "Group Deal Details";
+}
+
+<h2>Deal Details</h2>
+
+
+<div class="card p-4">
+    <h4>Deal Details</h4>
+    <p>Product: @Model.Product.Title</p>
+    <p>Original Price: @Model.OriginalPrice</p>
+    <p>Group Price: @Model.GroupPrice</p>
+    <p>Required Users: @Model.RequiredUsers</p>
+    <p>Joined Users: @Model.JoinedUsersCount</p>
+    <p>Start Date: @Model.StartDate.ToString("yyyy-MM-dd")</p>
+    <p>End Date: @Model.EndDate.ToString("yyyy-MM-dd")</p>
+    <p>Status: @(Model.IsActive ? "Active" : "Completed")</p>
+
+    <h5>Users Joined:</h5>
+    <ul>
+        @foreach (var user in Model.GroupDealUsers)
+        {
+            <li>@user.User.UserName (@user.JoinedDate.ToString("yyyy-MM-dd"))</li>
+        }
+    </ul>
+
+    <a asp-action="Index" class="btn btn-primary">Back</a>
+</div>

@@ -112,11 +112,20 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             }
             else
             {
+                // 1. إذا وصل الـ productVM فارغاً، نقوم بإنشائه يدوياً لتجنب الـ Crash
+                if (productVM == null)
+                {
+                    productVM = new ProductVM();
+                    productVM.Product = new Product(); // تهيئة الـ Product الداخلي لتجنب مشاكل أخرى
+                }
+
+                // 2. الآن يمكننا تعبئة القائمة بأمان
                 productVM.CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
                 {
                     Text = u.Name,
                     Value = u.Id.ToString()
                 });
+
                 return View(productVM);
             }
         }

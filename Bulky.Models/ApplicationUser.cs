@@ -14,7 +14,8 @@ namespace BulkyBook.Models
         public int? CompanyId { get; set; }
         public Company? Company { get; set; }
         public string? ProfilePictureUrl { get; set; } // << ده اللي ضفناه عشان الصورة
-        [NotMapped]
+     
+        public ICollection<GroupDealUser>? GroupDealUsers { get; set; }
         public string? Role { get; set; }
     }
 }

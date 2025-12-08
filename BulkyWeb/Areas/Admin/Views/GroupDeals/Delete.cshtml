@@ -1,0 +1,29 @@
+﻿@model BulkyBook.Models.GroupDeal
+@{
+    ViewData["Title"] = "Delete Group Deal";
+}
+
+<h2>Delete Group Deal</h2>
+
+<h4>Are you sure you want to delete this deal?</h4>
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Product</dt>
+        <dd class="col-sm-10">@Model.Product.Title</dd>
+
+        <dt class="col-sm-2">Group Price</dt>
+        <dd class="col-sm-10">@Model.GroupPrice.ToString("c")</dd>
+
+        <dt class="col-sm-2">Required Users</dt>
+        <dd class="col-sm-10">@Model.RequiredUsers</dd>
+
+        <dt class="col-sm-2">End Date</dt>
+        <dd class="col-sm-10">@Model.EndDate.ToString("g")</dd>
+    </dl>
+
+    <form asp-action="DeleteConfirmed" method="post">
+        <input type="hidden" asp-for="DealId" />
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

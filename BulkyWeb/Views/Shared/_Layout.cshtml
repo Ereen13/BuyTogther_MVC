@@ -12,6 +12,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+      <!-- Render optional Styles section -->
+    @RenderSection("Styles", required: false)
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] BuyTogther</title>
@@ -57,6 +59,10 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="Admin" asp-controller="Category" asp-action="Index">Category</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Customer" asp-controller="Deals" asp-action="Index">Deals</a>
+                        </li>
+
                         @if (User.IsInRole(SD.Role_Admin))
                         {
                             <li class="nav-item dropdown">

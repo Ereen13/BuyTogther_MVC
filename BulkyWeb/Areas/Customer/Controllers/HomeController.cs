@@ -75,9 +75,56 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
         // -----------------------------
         // Group Deals / Group Buy
         // -----------------------------
-       
+        // -----------------------------
+        // Group Deals / Deals Page
+        // -----------------------------
+        //public IActionResult Deals()
+        //{
+        //    var deals = _unitOfWork.GroupDeal.GetActiveDeals();
+        //    return View(deals);
+        //}
 
-       
+        //public IActionResult DealDetails(int id)
+        //{
+        //    var deal = _unitOfWork.GroupDeal.GetByIdWithUsers(id);
+        //    if (deal == null) return NotFound();
+        //    return View(deal);
+        //}
+
+        //[HttpPost]
+        //[Authorize]
+        //public IActionResult JoinDeal(int dealId)
+        //{
+        //    var deal = _unitOfWork.GroupDeal.GetByIdWithUsers(dealId);
+        //    if (deal == null) return NotFound();
+
+        //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        //    if (deal.GroupDealUsers == null)
+        //        deal.GroupDealUsers = new List<GroupDealUser>();
+
+        //    if (!deal.GroupDealUsers.Any(u => u.UserId == userId) && !deal.IsCompleted && deal.EndDate >= DateTime.UtcNow)
+        //    {
+        //        deal.GroupDealUsers.Add(new GroupDealUser
+        //        {
+        //            DealId = dealId,
+        //            UserId = userId,
+        //            JoinedDate = DateTime.UtcNow
+        //        });
+                
+        //        if (deal.JoinedUsersCount >= deal.RequiredUsers)
+        //            deal.IsCompleted = true;
+
+        //        _unitOfWork.GroupDeal.Update(deal);
+        //        _unitOfWork.GroupDealUser.Add(new GroupDealUser { DealId = dealId, UserId = userId, JoinedDate = DateTime.UtcNow });
+        //        _unitOfWork.Save();
+        //    }
+
+        //    return RedirectToAction("DealDetails", new { id = dealId });
+        //}
+
+
+
         [HttpPost]
         [Authorize]
         
