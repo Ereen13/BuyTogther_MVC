@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using BulkyBook.Models;
+using BulkyBook.Utility;
 
 namespace BulkyBookWeb.Areas.Identity.Pages.Account
 {
@@ -21,9 +22,9 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
     public class ResendEmailConfirmationModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailService _emailSender;
 
-        public ResendEmailConfirmationModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender)
+        public ResendEmailConfirmationModel(UserManager<ApplicationUser> userManager, IEmailService emailSender)
         {
             _userManager = userManager;
             _emailSender = emailSender;

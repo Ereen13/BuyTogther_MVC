@@ -34,7 +34,7 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
 
 
         private readonly ILogger<RegisterModel> _logger;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailService _emailSender;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
@@ -44,7 +44,7 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
     IUserStore<ApplicationUser> userStore,
     SignInManager<ApplicationUser> signInManager,
     ILogger<RegisterModel> logger,
-    IEmailSender emailSender,
+    IEmailService emailSender,
     IUnitOfWork unitOfWork,
     IWebHostEnvironment webHostEnvironment)
         {
