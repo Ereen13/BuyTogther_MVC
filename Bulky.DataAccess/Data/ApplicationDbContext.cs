@@ -14,6 +14,8 @@ namespace BulkyBook.DataAcess.Data // تأكدي إن اسم الفولدر Data
         // ✅ DbSets موجودة
         public DbSet<Payment> Payments { get; set; }
 
+        public DbSet<GroupDeal> GroupDeals { get; set; }
+        public DbSet<GroupDealUser> GroupDealUsers { get; set; }
 
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
@@ -30,7 +32,9 @@ namespace BulkyBook.DataAcess.Data // تأكدي إن اسم الفولدر Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
+            modelBuilder.Entity<GroupDeal>()
+           .Property(g => g.GroupPrice)
+           .HasPrecision(18, 2);
             // Seed Categories
             modelBuilder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Action", DisplayOrder = 1 },

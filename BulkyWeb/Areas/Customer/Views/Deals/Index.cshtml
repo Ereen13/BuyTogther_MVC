@@ -1,0 +1,111 @@
+﻿@model IEnumerable<BulkyBook.Models.GroupDeal>
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-primary"><i class="fas fa-gift"></i> Group Deals</h2>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var deal in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm border-0 card-hover">
+                    <div class="position-relative">
+                        <img src="@(deal.Product.ProductImages?.FirstOrDefault()?.ImageUrl ?? "/images/default-product.png")" class="card-img-top" alt="@deal.Product.Title" />
+                        @{
+                            double listPrice = (double)deal.Product.ListPrice;
+                            double groupPrice = (double)deal.GroupPrice;
+                            double discount = 0;
+                            if (listPrice > 0) discount = ((listPrice - groupPrice) / listPrice * 100);
+                        }
+                        <span class="badge bg-danger position-absolute" style="top:10px; left:10px;">
+                            @discount.ToString("0")% OFF
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@deal.Product.Title</h5>
+                        <p class="mb-1 text-muted">by @deal.Product.Author</p>
+                        <p class="fw-bold">@deal.GroupPrice.ToString("c") <span class="text-muted text-decoration-line-through">@deal.Product.ListPrice.ToString("c")</span></p>
+
+                        <div class="mb-2">
+                            @{
+                                var percent = deal.RequiredUsers == 0 ? 0 : (int)(deal.JoinedUsersCount * 100 / deal.RequiredUsers);
+                            }
+                            <div class="progress">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width:@percent%">
+                                    @deal.JoinedUsersCount / @deal.RequiredUsers
+                                </div>
+                            </div>
+                        </div>
+
+                        <p id="countdown-@deal.DealId" class="text-danger fw-bold mb-2"></p>
+                        <a asp-action="Details" asp-route-id="@deal.DealId" class="btn btn-primary w-100">
+                            <i class="fas fa-info-circle"></i> View Deal
+                        </a>
+                    </div>
+                    <div class="card-footer text-center">
+                        @if (deal.IsCompleted)
+                        {
+                            <span class="badge bg-success"><i class="fas fa-check-circle"></i> Completed</span>
+                        }
+                        else if (DateTime.UtcNow >= deal.EndDate)
+                        {
+                            <span class="badge bg-secondary"><i class="fas fa-clock"></i> Expired</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-primary"><i class="fas fa-clock"></i> Active</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card-hover {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .progress-bar {
+            transition: width 0.5s;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        // تحويل قائمة Deals إلى JSON لتجنب مشاكل Razor
+        var deals = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+            Model.Select(d => new { Id = d.DealId, EndDate = d.EndDate.ToString("yyyy-MM-ddTHH:mm:ss") })
+        ));
+
+        deals.forEach(function(d) {
+            var countdownElement = document.getElementById("countdown-" + d.Id);
+            if (!countdownElement) return;
+
+            var countDownDate = new Date(d.EndDate).getTime();
+
+            var x = setInterval(function () {
+                var now = new Date().getTime();
+                var distance = countDownDate - now;
+
+                if (distance < 0) {
+                    clearInterval(x);
+                    countdownElement.innerHTML = "EXPIRED";
+                    return;
+                }
+
+                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                countdownElement.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+            }, 1000);
+        });
+    </script>
+}
